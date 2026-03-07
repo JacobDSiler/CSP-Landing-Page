@@ -237,20 +237,128 @@ footer{padding:40px 0;border-top:1px solid var(--border);text-align:center;color
 </div>
 </footer>
 
-<!-- Replace these hrefs with your actual Stripe/Gumroad payment links -->
+<div id="payment-status" style="display:none"></div>
+
+<!-- Checkout Modal -->
+<div id="checkout-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:1000;align-items:center;justify-content:center;backdrop-filter:blur(4px)">
+    <div style="background:#18181b;border:1px solid #27272a;border-radius:16px;padding:32px;max-width:440px;width:90%;position:relative">
+        <button onclick="closeCheckout()" style="position:absolute;top:12px;right:16px;background:none;border:none;color:#a1a1aa;font-size:20px;cursor:pointer">&times;</button>
+        <h3 id="modal-title" style="color:#fafafa;font-size:20px;font-weight:600;margin-bottom:20px;text-align:center"></h3>
+        <div id="modal-paypal"></div>
+        <p style="text-align:center;color:#64748b;font-size:11px;margin-top:16px">Secure payment via PayPal. License key delivered by email.</p>
+    </div>
+</div>
+
+<!-- PayPal SDK + payment configuration -->
+<script src="https://www.paypal.com/sdk/js?client-id=YOUR_PAYPAL_CLIENT_ID&currency=USD"></script>
 <script>
-// Stripe payment links (replace with your actual links)
-const STRIPE_LINKS = {
-    indie_lifetime: 'https://buy.stripe.com/YOUR_INDIE_LIFETIME_LINK',
-    indie_monthly: 'https://buy.stripe.com/YOUR_INDIE_MONTHLY_LINK',
-    pro_lifetime: 'https://buy.stripe.com/YOUR_PRO_LIFETIME_LINK',
-    pro_monthly: 'https://buy.stripe.com/YOUR_PRO_MONTHLY_LINK',
+// ═══════════════════════════════════════════════════════════════════
+// CONFIGURATION — Replace these values with your actual IDs
+// ═══════════════════════════════════════════════════════════════════
+
+// PayPal Client ID from https://developer.paypal.com/dashboard/applications
+const PAYPAL_CLIENT_ID = 'YOUR_PAYPAL_CLIENT_ID';
+
+// PayPal subscription Plan IDs (create these in PayPal Dashboard > Subscriptions)
+// Dashboard: https://developer.paypal.com/dashboard/subscriptions/plans
+const PAYPAL_PLANS = {
+    indie_monthly: 'P-XXXXXXXXXXXXXXXXXXXXX',  // $7/mo plan
+    pro_monthly: 'P-XXXXXXXXXXXXXXXXXXXXX',     // $15/mo plan
 };
 
-document.getElementById('btn-indie-lifetime').href = STRIPE_LINKS.indie_lifetime;
-document.getElementById('btn-indie-monthly').href = STRIPE_LINKS.indie_monthly;
-document.getElementById('btn-pro-lifetime').href = STRIPE_LINKS.pro_lifetime;
-document.getElementById('btn-pro-monthly').href = STRIPE_LINKS.pro_monthly;
+// One-time payment amounts
+const PRICES = {
+    indie_lifetime: 29,
+    pro_lifetime: 59,
+};
+
+// Your license generation endpoint
+const LICENSE_API = 'https://us-central1-curveslivepro-licensing.cloudfunctions.net/generateLicense';
+const ADMIN_SECRET = 'csp-admin-2026-xK9mP4wL7nR2';
+
+// ═══════════════════════════════════════════════════════════════════
+// PAYMENT HANDLERS
+// ═══════════════════════════════════════════════════════════════════
+
+// One-time PayPal payments (lifetime)
+function setupPayPalButton(containerId, amount, tier) {
+    paypal.Buttons({
+        style: { layout: 'horizontal', color: 'blue', shape: 'pill', label: 'pay' },
+        createOrder: (data, actions) => actions.order.create({
+            purchase_units: [{
+                description: `CurveSlice Pro — ${tier} (Lifetime)`,
+                amount: { value: amount.toString() }
+            }]
+        }),
+        onApprove: async (data, actions) => {
+            const order = await actions.order.capture();
+            const email = order.payer.email_address;
+            document.getElementById('payment-status').style.display = 'block';
+            document.getElementById('payment-status').innerHTML =
+                `<div style="background:#1a1a2e;border:1px solid #22c55e;border-radius:12px;padding:24px;margin:20px auto;max-width:500px;text-align:center">
+                    <h3 style="color:#22c55e;margin-bottom:8px">Payment Successful!</h3>
+                    <p style="color:#a1a1aa;font-size:14px">Your ${tier} license key will be sent to <strong style="color:#fff">${email}</strong> within a few minutes.</p>
+                    <p style="color:#64748b;font-size:12px;margin-top:12px">Check your spam folder if you don't see it.</p>
+                </div>`;
+            // In production, this would trigger your Cloud Function via webhook
+            // For now, show success and manually generate keys
+        },
+        onError: (err) => {
+            alert('Payment failed. Please try again or contact support.');
+            console.error('PayPal error:', err);
+        }
+    }).render(containerId);
+}
+
+// Monthly subscriptions
+function setupPayPalSubscription(containerId, planId, tier) {
+    paypal.Buttons({
+        style: { layout: 'horizontal', color: 'blue', shape: 'pill', label: 'subscribe' },
+        createSubscription: (data, actions) => actions.subscription.create({ plan_id: planId }),
+        onApprove: (data) => {
+            document.getElementById('payment-status').style.display = 'block';
+            document.getElementById('payment-status').innerHTML =
+                `<div style="background:#1a1a2e;border:1px solid #22c55e;border-radius:12px;padding:24px;margin:20px auto;max-width:500px;text-align:center">
+                    <h3 style="color:#22c55e;margin-bottom:8px">Subscription Active!</h3>
+                    <p style="color:#a1a1aa;font-size:14px">Your ${tier} license key will be emailed shortly. Subscription ID: ${data.subscriptionID}</p>
+                </div>`;
+        }
+    }).render(containerId);
+}
+
+// ═══════════════════════════════════════════════════════════════════
+// MODAL CHECKOUT
+// ═══════════════════════════════════════════════════════════════════
+
+const modal = document.getElementById('checkout-modal');
+const modalTitle = document.getElementById('modal-title');
+const modalPaypal = document.getElementById('modal-paypal');
+
+function openCheckout(tier, type) {
+    modalTitle.textContent = `${tier} — ${type === 'lifetime' ? 'Lifetime' : 'Monthly'}`;
+    modalPaypal.innerHTML = '';
+    modal.style.display = 'flex';
+
+    const containerId = `paypal-btn-${Date.now()}`;
+    const div = document.createElement('div');
+    div.id = containerId;
+    modalPaypal.appendChild(div);
+
+    if (type === 'lifetime') {
+        setupPayPalButton('#' + containerId, PRICES[`${tier.toLowerCase()}_lifetime`], tier);
+    } else {
+        setupPayPalSubscription('#' + containerId, PAYPAL_PLANS[`${tier.toLowerCase()}_monthly`], tier);
+    }
+}
+
+function closeCheckout() { modal.style.display = 'none'; }
+modal?.addEventListener('click', (e) => { if (e.target === modal) closeCheckout(); });
+
+// Wire up buttons
+document.getElementById('btn-indie-lifetime').addEventListener('click', (e) => { e.preventDefault(); openCheckout('Indie', 'lifetime'); });
+document.getElementById('btn-indie-monthly').addEventListener('click', (e) => { e.preventDefault(); openCheckout('Indie', 'monthly'); });
+document.getElementById('btn-pro-lifetime').addEventListener('click', (e) => { e.preventDefault(); openCheckout('Pro', 'lifetime'); });
+document.getElementById('btn-pro-monthly').addEventListener('click', (e) => { e.preventDefault(); openCheckout('Pro', 'monthly'); });
 </script>
 </body>
 </html>
