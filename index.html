@@ -321,20 +321,36 @@ function openCheckout(tier, type) {
     modalPaypal.innerHTML = '';
     modal.style.display = 'flex';
 
-    const containerId = `paypal-btn-${Date.now()}`;
-    const div = document.createElement('div');
-    div.id = containerId;
-    modalPaypal.appendChild(div);
+    if (type === 'lifetime') {
+        // Perpetual: custom checkout UI — no "Subscribe" button
+        const amount = tier === 'Indie' ? 149 : 249;
+        const desc = encodeURIComponent(`CurveSlice Pro ${tier} Perpetual License`);
+        const paypalURL = `https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=jacob.siler91%40gmail.com&item_name=${desc}&amount=${amount}&currency_code=USD&no_shipping=1&return=https://curveslice.jacobsiler.com`;
 
-    // Map button type to plan key
-    const planKey = type === 'lifetime'
-        ? `${tier.toLowerCase()}_perpetual`
-        : `${tier.toLowerCase()}_${type}`;
-
-    if (PAYPAL_PLANS[planKey]) {
-        setupPayPalButton('#' + containerId, PAYPAL_PLANS[planKey], tier, labels[type]);
+        modalPaypal.innerHTML =
+            `<div style="text-align:center;padding:12px 0">
+                <p style="color:#fafafa;font-size:22px;font-weight:700;margin-bottom:4px">$${amount}</p>
+                <p style="color:#a1a1aa;font-size:13px;margin-bottom:20px">One-time payment · Lifetime access · No subscription</p>
+                <a href="${paypalURL}" target="_blank" rel="noopener"
+                   style="display:inline-flex;align-items:center;justify-content:center;gap:8px;width:100%;background:#0070ba;color:#fff;padding:14px 24px;border-radius:24px;font-size:15px;font-weight:600;text-decoration:none;margin-bottom:10px">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.106zm14.146-14.42a3.35 3.35 0 0 0-.607-.541c-.013.076-.026.175-.041.254-.93 4.778-4.005 7.201-9.138 7.201h-2.19a.563.563 0 0 0-.556.479l-1.187 7.527h-.506l-.24 1.516a.56.56 0 0 0 .554.647h3.882c.46 0 .85-.334.922-.788l.038-.2.73-4.627.047-.256a.925.925 0 0 1 .913-.786h.574c3.727 0 6.643-1.514 7.496-5.896.357-1.832.172-3.362-.766-4.53z"/></svg>
+                    Pay Now with PayPal
+                </a>
+                <p style="color:#64748b;font-size:11px;margin-top:8px">After payment, your license key will be emailed within a few hours.</p>
+            </div>`;
     } else {
-        modalPaypal.innerHTML = '<p style="color:#a1a1aa;text-align:center">Plan not configured.</p>';
+        // Monthly/Yearly: PayPal subscription buttons
+        const containerId = `paypal-btn-${Date.now()}`;
+        const div = document.createElement('div');
+        div.id = containerId;
+        modalPaypal.appendChild(div);
+
+        const planKey = `${tier.toLowerCase()}_${type}`;
+        if (PAYPAL_PLANS[planKey]) {
+            setupPayPalButton('#' + containerId, PAYPAL_PLANS[planKey], tier, labels[type]);
+        } else {
+            modalPaypal.innerHTML = '<p style="color:#a1a1aa;text-align:center">Plan not configured.</p>';
+        }
     }
 }
 
