@@ -271,6 +271,8 @@ const PAYPAL_PLANS = {
     indie_yearly: 'P-6YX66240LS926554BNGXQ4PI',
     pro_monthly: 'P-2S04336759655502VNGXQSJY',
     pro_yearly: 'P-53Y53650N0452164BNGXQ57Y',
+    indie_perpetual: 'P-6XM00718L0606104SNGXTSDQ',
+    pro_perpetual: 'P-83164119MM785210MNGXTUIA',
 };
 
 // Your PayPal.me username for one-time payments
@@ -334,8 +336,12 @@ function openCheckout(tier, type) {
     modal.style.display = 'flex';
 
     if (type === 'lifetime') {
-        const amount = tier === 'Indie' ? 149 : 249;
-        openPerpetualCheckout(tier, amount);
+        const containerId = `paypal-btn-${Date.now()}`;
+        const div = document.createElement('div');
+        div.id = containerId;
+        modalPaypal.appendChild(div);
+        const planKey = `${tier.toLowerCase()}_perpetual`;
+        setupPayPalSubscription('#' + containerId, PAYPAL_PLANS[planKey], tier + ' Perpetual');
     } else {
         const containerId = `paypal-btn-${Date.now()}`;
         const div = document.createElement('div');
