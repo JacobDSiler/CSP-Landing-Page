@@ -255,8 +255,10 @@ footer{padding:40px 0;border-top:1px solid var(--border);text-align:center;color
     </div>
 </div>
 
-<!-- PayPal SDK + payment configuration -->
-<script src="https://www.paypal.com/sdk/js?client-id=Aby8-d7ghvHo6ajww9-pMgKQhkYoWht0VoOoJNebXKnc16RlptwEx9KTLBl3IxWljnDf_dvPtwWy0RzI&currency=USD&intent=subscription&vault=true"></script>
+<!-- PayPal SDK: subscriptions (monthly/yearly) -->
+<script src="https://www.paypal.com/sdk/js?client-id=Aby8-d7ghvHo6ajww9-pMgKQhkYoWht0VoOoJNebXKnc16RlptwEx9KTLBl3IxWljnDf_dvPtwWy0RzI&currency=USD&intent=subscription&vault=true&components=buttons&data-namespace=paypalSubscriptions"></script>
+<!-- PayPal SDK: one-time payments (perpetual) -->
+<script src="https://www.paypal.com/sdk/js?client-id=Aby8-d7ghvHo6ajww9-pMgKQhkYoWht0VoOoJNebXKnc16RlptwEx9KTLBl3IxWljnDf_dvPtwWy0RzI&currency=USD&components=buttons&data-namespace=paypalOneTime"></script>
 <script>
 // ═══════════════════════════════════════════════════════════════════
 // CONFIGURATION — Replace these values with your actual IDs
@@ -286,9 +288,9 @@ const ADMIN_SECRET = 'csp-admin-2026-xK9mP4wL7nR2';
 // PAYMENT HANDLERS
 // ═══════════════════════════════════════════════════════════════════
 
-// Subscriptions via PayPal SDK
+// Subscriptions (monthly/yearly) — uses paypalSubscriptions namespace
 function setupPayPalSubscription(containerId, planId, tier) {
-    paypal.Buttons({
+    paypalSubscriptions.Buttons({
         style: { layout: 'vertical', color: 'blue', shape: 'pill', label: 'subscribe' },
         createSubscription: (data, actions) => actions.subscription.create({ plan_id: planId }),
         onApprove: (data) => {
@@ -302,23 +304,34 @@ function setupPayPalSubscription(containerId, planId, tier) {
                     <p style="color:#64748b;font-size:12px;margin-top:4px">Check your email (and spam folder) for your key.</p>
                 </div>`;
         },
-        onError: (err) => {
-            console.error('PayPal subscription error:', err);
-        }
+        onError: (err) => { console.error('PayPal subscription error:', err); }
     }).render(containerId);
 }
 
-// Perpetual via PayPal.me direct link (since SDK with intent=subscription can't do one-time)
-function openPerpetualCheckout(tier, amount) {
-    const note = encodeURIComponent(`CurveSlice Pro ${tier} Perpetual License`);
-    const url = `https://www.paypal.me/${PAYPAL_ME}/${amount}USD`;
-    
-    modalPaypal.innerHTML =
-        `<div style="text-align:center;padding:16px 0">
-            <p style="color:#a1a1aa;font-size:14px;margin-bottom:16px">Click below to pay <strong style="color:#fff">$${amount}</strong> via PayPal for your <strong style="color:#fff">${tier} Perpetual</strong> license.</p>
-            <a href="${url}" target="_blank" rel="noopener" style="display:inline-block;background:#0070ba;color:#fff;padding:14px 32px;border-radius:24px;font-size:15px;font-weight:600;text-decoration:none">Pay with PayPal — $${amount}</a>
-            <p style="color:#64748b;font-size:12px;margin-top:16px">After payment, email <strong>jacob.siler91@gmail.com</strong> with your PayPal receipt and we'll send your license key within 24 hours.</p>
-        </div>`;
+// One-time payments (perpetual) — uses paypalOneTime namespace, shows "Pay Now"
+function setupPayPalOneTime(containerId, amount, tier) {
+    paypalOneTime.Buttons({
+        style: { layout: 'vertical', color: 'gold', shape: 'pill', label: 'paypal' },
+        createOrder: (data, actions) => actions.order.create({
+            purchase_units: [{
+                description: `CurveSlice Pro — ${tier} (Perpetual License)`,
+                amount: { value: amount.toString() }
+            }]
+        }),
+        onApprove: async (data, actions) => {
+            const order = await actions.order.capture();
+            const email = order.payer.email_address;
+            closeCheckout();
+            document.getElementById('payment-status').style.display = 'block';
+            document.getElementById('payment-status').innerHTML =
+                `<div style="background:#1a1a2e;border:1px solid #22c55e;border-radius:12px;padding:24px;margin:20px auto;max-width:500px;text-align:center">
+                    <h3 style="color:#22c55e;margin-bottom:8px">Payment Successful!</h3>
+                    <p style="color:#a1a1aa;font-size:14px">Your ${tier} Perpetual license key will be sent to <strong style="color:#fff">${email}</strong></p>
+                    <p style="color:#64748b;font-size:12px;margin-top:8px">Check your email (and spam folder) for your key.</p>
+                </div>`;
+        },
+        onError: (err) => { console.error('PayPal one-time error:', err); }
+    }).render(containerId);
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -330,24 +343,20 @@ const modalTitle = document.getElementById('modal-title');
 const modalPaypal = document.getElementById('modal-paypal');
 
 function openCheckout(tier, type) {
-    const labels = { lifetime: 'Perpetual', yearly: 'Yearly', monthly: 'Monthly' };
+    const labels = { lifetime: 'Perpetual License', yearly: 'Yearly', monthly: 'Monthly' };
     modalTitle.textContent = `${tier} — ${labels[type]}`;
     modalPaypal.innerHTML = '';
     modal.style.display = 'flex';
 
-    if (type === 'lifetime') {
-        const containerId = `paypal-btn-${Date.now()}`;
-        const div = document.createElement('div');
-        div.id = containerId;
-        modalPaypal.appendChild(div);
-        const planKey = `${tier.toLowerCase()}_perpetual`;
-        setupPayPalSubscription('#' + containerId, PAYPAL_PLANS[planKey], tier + ' Perpetual');
-    } else {
-        const containerId = `paypal-btn-${Date.now()}`;
-        const div = document.createElement('div');
-        div.id = containerId;
-        modalPaypal.appendChild(div);
+    const containerId = `paypal-btn-${Date.now()}`;
+    const div = document.createElement('div');
+    div.id = containerId;
+    modalPaypal.appendChild(div);
 
+    if (type === 'lifetime') {
+        const amount = tier === 'Indie' ? 149 : 249;
+        setupPayPalOneTime('#' + containerId, amount, tier);
+    } else {
         const planKey = `${tier.toLowerCase()}_${type}`;
         if (PAYPAL_PLANS[planKey]) {
             setupPayPalSubscription('#' + containerId, PAYPAL_PLANS[planKey], tier);
