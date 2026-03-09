@@ -171,51 +171,57 @@ footer{padding:40px 0;border-top:1px solid var(--border);text-align:center;color
         <div class="price-card">
             <div class="price-tier">Free</div>
             <div class="price-amount">$0</div>
-            <div class="price-period">7-day unlimited trial, then 10 cuts/day</div>
+            <div class="price-period">7-day full trial, then 10 cuts/day</div>
             <ul class="price-features">
                 <li>Object mode cutting</li>
                 <li>Straight &amp; Bezier curves</li>
                 <li>Trim, Slice, Intersect</li>
                 <li>Live visualization</li>
-                <li>View lock</li>
-                <li class="locked">Remeshing</li>
+                <li>Closed loop cuts</li>
+                <li class="locked">Auto remeshing</li>
                 <li class="locked">Edit &amp; Sculpt mode</li>
             </ul>
             <a href="#" class="price-btn price-btn-outline">Download Free</a>
         </div>
         <div class="price-card popular">
             <div class="price-tier">Indie</div>
-            <div class="price-amount">$29 <span>lifetime</span></div>
-            <div class="price-period">or $7/month</div>
+            <div class="price-amount">$9<span>/mo</span></div>
+            <div class="price-period">$69/year (save 36%) · $149 perpetual</div>
             <ul class="price-features">
                 <li>Everything in Free</li>
                 <li>Unlimited cuts</li>
                 <li>Edit mode support</li>
-                <li>Voxel remesh</li>
+                <li>Auto voxel remesh</li>
                 <li>3 device activations</li>
                 <li class="locked">Sculpt mode</li>
                 <li class="locked">QuadriFlow &amp; QuadRemesher</li>
             </ul>
-            <a href="#" class="price-btn price-btn-primary" id="btn-indie-lifetime">Get Indie — $29</a>
+            <a href="#" class="price-btn price-btn-primary" id="btn-indie-yearly">Best Value — $69/year</a>
             <div class="price-or">or</div>
-            <a href="#" class="price-monthly" id="btn-indie-monthly">$7/month</a>
+            <div style="display:flex;gap:8px">
+                <a href="#" class="price-monthly" id="btn-indie-monthly" style="flex:1">$9/mo</a>
+                <a href="#" class="price-monthly" id="btn-indie-lifetime" style="flex:1">$149 forever</a>
+            </div>
         </div>
         <div class="price-card">
             <div class="price-tier">Pro</div>
-            <div class="price-amount">$59 <span>lifetime</span></div>
-            <div class="price-period">or $15/month</div>
+            <div class="price-amount">$15<span>/mo</span></div>
+            <div class="price-period">$99/year (save 45%) · $249 perpetual</div>
             <ul class="price-features">
                 <li>Everything in Indie</li>
                 <li>Sculpt mode cutting</li>
-                <li>QuadriFlow remesh</li>
+                <li>QuadriFlow auto remesh</li>
                 <li>QuadRemesher support</li>
                 <li>5 device activations</li>
                 <li>Priority support</li>
-                <li>&nbsp;</li>
+                <li>All future updates</li>
             </ul>
-            <a href="#" class="price-btn price-btn-primary" id="btn-pro-lifetime">Get Pro — $59</a>
+            <a href="#" class="price-btn price-btn-primary" id="btn-pro-yearly">Best Value — $99/year</a>
             <div class="price-or">or</div>
-            <a href="#" class="price-monthly" id="btn-pro-monthly">$15/month</a>
+            <div style="display:flex;gap:8px">
+                <a href="#" class="price-monthly" id="btn-pro-monthly" style="flex:1">$15/mo</a>
+                <a href="#" class="price-monthly" id="btn-pro-lifetime" style="flex:1">$249 forever</a>
+            </div>
         </div>
     </div>
 </div>
@@ -250,26 +256,29 @@ footer{padding:40px 0;border-top:1px solid var(--border);text-align:center;color
 </div>
 
 <!-- PayPal SDK + payment configuration -->
-<script src="https://www.paypal.com/sdk/js?client-id=AVg5afJKrnYF4UBBioHrnppOvLVYvCqWZQjfHXI22k48vG6E_CLol9ccw5zP-2ygEnBnCOmTV4HMnQZ1&currency=USD"></script>
+<script src="https://www.paypal.com/sdk/js?client-id=YOUR_PAYPAL_CLIENT_ID&currency=USD"></script>
 <script>
 // ═══════════════════════════════════════════════════════════════════
 // CONFIGURATION — Replace these values with your actual IDs
 // ═══════════════════════════════════════════════════════════════════
 
 // PayPal Client ID from https://developer.paypal.com/dashboard/applications
-const PAYPAL_CLIENT_ID = 'AVg5afJKrnYF4UBBioHrnppOvLVYvCqWZQjfHXI22k48vG6E_CLol9ccw5zP-2ygEnBnCOmTV4HMnQZ1';
+const PAYPAL_CLIENT_ID = 'YOUR_PAYPAL_CLIENT_ID';
 
 // PayPal subscription Plan IDs (create these in PayPal Dashboard > Subscriptions)
-// Dashboard: https://developer.paypal.com/dashboard/subscriptions/plans
 const PAYPAL_PLANS = {
-    indie_monthly: 'P-XXXXXXXXXXXXXXXXXXXXX',  // $7/mo plan
-    pro_monthly: 'P-XXXXXXXXXXXXXXXXXXXXX',     // $15/mo plan
+    indie_monthly: 'P-7S105645HM843330MNGXQTSQ',
+    indie_yearly: 'P-6YX66240LS926554BNGXQ4PI',
+    pro_monthly: 'P-2S04336759655502VNGXQSJY',
+    pro_yearly: 'P-53Y53650N0452164BNGXQ57Y',
 };
 
 // One-time payment amounts
 const PRICES = {
-    indie_lifetime: 29,
-    pro_lifetime: 59,
+    indie_lifetime: 149,
+    indie_yearly: 69,
+    pro_lifetime: 249,
+    pro_yearly: 99,
 };
 
 // Your license generation endpoint
@@ -335,7 +344,8 @@ const modalTitle = document.getElementById('modal-title');
 const modalPaypal = document.getElementById('modal-paypal');
 
 function openCheckout(tier, type) {
-    modalTitle.textContent = `${tier} — ${type === 'lifetime' ? 'Lifetime' : 'Monthly'}`;
+    const labels = { lifetime: 'Perpetual', yearly: 'Yearly', monthly: 'Monthly' };
+    modalTitle.textContent = `${tier} — ${labels[type]}`;
     modalPaypal.innerHTML = '';
     modal.style.display = 'flex';
 
@@ -344,10 +354,15 @@ function openCheckout(tier, type) {
     div.id = containerId;
     modalPaypal.appendChild(div);
 
-    if (type === 'lifetime') {
-        setupPayPalButton('#' + containerId, PRICES[`${tier.toLowerCase()}_lifetime`], tier);
+    if (type === 'monthly' || type === 'yearly') {
+        const planKey = `${tier.toLowerCase()}_${type}`;
+        if (PAYPAL_PLANS[planKey]) {
+            setupPayPalSubscription('#' + containerId, PAYPAL_PLANS[planKey], tier);
+        } else {
+            modalPaypal.innerHTML = '<p style="color:#a1a1aa;text-align:center">Subscription plan not configured yet. Coming soon.</p>';
+        }
     } else {
-        setupPayPalSubscription('#' + containerId, PAYPAL_PLANS[`${tier.toLowerCase()}_monthly`], tier);
+        setupPayPalButton('#' + containerId, PRICES[`${tier.toLowerCase()}_lifetime`], tier);
     }
 }
 
@@ -355,10 +370,12 @@ function closeCheckout() { modal.style.display = 'none'; }
 modal?.addEventListener('click', (e) => { if (e.target === modal) closeCheckout(); });
 
 // Wire up buttons
-document.getElementById('btn-indie-lifetime').addEventListener('click', (e) => { e.preventDefault(); openCheckout('Indie', 'lifetime'); });
+document.getElementById('btn-indie-yearly').addEventListener('click', (e) => { e.preventDefault(); openCheckout('Indie', 'yearly'); });
 document.getElementById('btn-indie-monthly').addEventListener('click', (e) => { e.preventDefault(); openCheckout('Indie', 'monthly'); });
-document.getElementById('btn-pro-lifetime').addEventListener('click', (e) => { e.preventDefault(); openCheckout('Pro', 'lifetime'); });
+document.getElementById('btn-indie-lifetime').addEventListener('click', (e) => { e.preventDefault(); openCheckout('Indie', 'lifetime'); });
+document.getElementById('btn-pro-yearly').addEventListener('click', (e) => { e.preventDefault(); openCheckout('Pro', 'yearly'); });
 document.getElementById('btn-pro-monthly').addEventListener('click', (e) => { e.preventDefault(); openCheckout('Pro', 'monthly'); });
+document.getElementById('btn-pro-lifetime').addEventListener('click', (e) => { e.preventDefault(); openCheckout('Pro', 'lifetime'); });
 </script>
 </body>
 </html>
