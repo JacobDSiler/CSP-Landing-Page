@@ -6,364 +6,647 @@
 <title>CurveSlice Pro — ZBrush-style Cutting for Blender</title>
 <meta name="description" content="Professional curve-based cutting, trimming, and slicing for Blender. Draw a line, cut your mesh. Works in Object, Sculpt, and Edit mode.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,300&family=JetBrains+Mono:wght@400;500&family=Syne:wght@700;800&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-:root{--bg:#09090b;--surface:#18181b;--border:#27272a;--text:#fafafa;--muted:#a1a1aa;--accent:#2563eb;--accent2:#3b82f6;--red:#ef4444;--green:#22c55e;--gold:#eab308}
+:root{
+  --bg:#07070a;
+  --surface:#111116;
+  --surface2:#18181f;
+  --border:#222230;
+  --border2:#2e2e40;
+  --text:#f0f0f8;
+  --muted:#7070a0;
+  --muted2:#9090b8;
+  --accent:#3b5bff;
+  --accent2:#6b8fff;
+  --red:#ff4455;
+  --green:#22d46e;
+  --gold:#f0b429;
+  --purple:#8b5cf6;
+}
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);line-height:1.6;overflow-x:hidden}
 a{color:var(--accent2);text-decoration:none}
 a:hover{text-decoration:underline}
-.container{max-width:1100px;margin:0 auto;padding:0 24px}
+.container{max-width:1100px;margin:0 auto;padding:0 32px}
 
-/* Hero */
-.hero{padding:100px 0 80px;text-align:center;position:relative}
-.hero::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:600px;height:600px;background:radial-gradient(circle,rgba(37,99,235,0.12) 0%,transparent 70%);pointer-events:none}
-.badge{display:inline-block;padding:6px 16px;border:1px solid var(--border);border-radius:100px;font-size:13px;color:var(--muted);margin-bottom:24px;letter-spacing:0.5px}
-h1{font-size:clamp(40px,6vw,64px);font-weight:700;letter-spacing:-1.5px;line-height:1.1;margin-bottom:20px}
-h1 span{background:linear-gradient(135deg,var(--accent2),#818cf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
-.hero p{font-size:18px;color:var(--muted);max-width:560px;margin:0 auto 40px}
-.cta-row{display:flex;gap:16px;justify-content:center;flex-wrap:wrap}
-.btn{display:inline-flex;align-items:center;gap:8px;padding:14px 28px;border-radius:10px;font-size:15px;font-weight:600;border:none;cursor:pointer;transition:all .2s}
-.btn-primary{background:var(--accent);color:#fff}
-.btn-primary:hover{background:var(--accent2);text-decoration:none}
-.btn-outline{background:transparent;border:1px solid var(--border);color:var(--text)}
+/* ── HERO ── */
+.hero{padding:120px 0 80px;text-align:center;position:relative;overflow:hidden}
+.hero-bg{
+  position:absolute;inset:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 700px 400px at 50% -60px, rgba(59,91,255,0.13) 0%, transparent 70%),
+    radial-gradient(ellipse 400px 300px at 80% 60%, rgba(139,92,246,0.07) 0%, transparent 60%);
+}
+.hero-noise{
+  position:absolute;inset:0;pointer-events:none;opacity:0.025;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.badge{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:7px 18px;border:1px solid var(--border2);border-radius:100px;
+  font-size:12px;color:var(--muted2);margin-bottom:28px;letter-spacing:0.8px;
+  text-transform:uppercase;font-weight:500;
+  background:rgba(255,255,255,0.03);
+}
+.badge-dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green)}
+h1{
+  font-family:'Syne',sans-serif;
+  font-size:clamp(44px,7vw,76px);
+  font-weight:800;letter-spacing:-2px;line-height:1.0;margin-bottom:24px;
+}
+h1 .line1{display:block;color:var(--text)}
+h1 .line2{
+  display:block;
+  background:linear-gradient(125deg,var(--accent2) 0%,#a78bfa 60%,#60a5fa 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+}
+.hero-sub{font-size:17px;color:var(--muted2);max-width:520px;margin:0 auto 44px;font-weight:300;line-height:1.7}
+.cta-row{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:14px 28px;border-radius:10px;font-size:15px;font-weight:600;border:none;cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif}
+.btn-primary{background:var(--accent);color:#fff;box-shadow:0 0 0 0 rgba(59,91,255,0)}
+.btn-primary:hover{background:#2d4de0;text-decoration:none;box-shadow:0 4px 32px rgba(59,91,255,0.35)}
+.btn-outline{background:transparent;border:1px solid var(--border2);color:var(--text)}
 .btn-outline:hover{border-color:var(--muted);text-decoration:none}
 
-/* Features */
-.features{padding:80px 0}
-.section-label{font-size:13px;text-transform:uppercase;letter-spacing:2px;color:var(--accent2);margin-bottom:12px}
-.section-title{font-size:32px;font-weight:700;letter-spacing:-0.5px;margin-bottom:48px}
-.feature-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px}
-.feature-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:28px;transition:border-color .2s}
-.feature-card:hover{border-color:var(--accent)}
-.feature-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:16px}
-.feature-card h3{font-size:17px;font-weight:600;margin-bottom:8px}
-.feature-card p{font-size:14px;color:var(--muted);line-height:1.6}
+/* ── HERO DEMO STRIP ── */
+.demo-strip{
+  padding:0 0 80px;
+  position:relative;
+}
+.demo-strip-inner{
+  max-width:1100px;margin:0 auto;padding:0 32px;
+  display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;
+}
+.demo-tile{
+  position:relative;border-radius:12px;overflow:hidden;
+  border:1px solid var(--border);
+  background:var(--surface);
+  group:hover;
+}
+.demo-tile img,.demo-tile video{
+  width:100%;height:220px;object-fit:cover;display:block;
+  transition:transform .4s ease;
+}
+.demo-tile:hover img,.demo-tile:hover video{transform:scale(1.03)}
+.demo-tile-label{
+  position:absolute;bottom:0;left:0;right:0;
+  padding:32px 16px 14px;
+  background:linear-gradient(to top,rgba(7,7,10,0.95) 0%,transparent 100%);
+  font-size:13px;font-weight:600;letter-spacing:0.3px;color:var(--text);
+}
+.demo-tile-label span{
+  display:inline-block;padding:3px 10px;border-radius:100px;font-size:11px;
+  background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.12);
+  margin-bottom:6px;color:var(--muted2);letter-spacing:0.5px;text-transform:uppercase;
+}
 
-/* Pricing */
+/* ── SECTION ANATOMY ── */
+.section-eyebrow{
+  font-size:11px;font-weight:600;letter-spacing:2.5px;text-transform:uppercase;
+  color:var(--accent2);margin-bottom:10px;font-family:'JetBrains Mono',monospace;
+}
+.section-title{font-family:'Syne',sans-serif;font-size:clamp(24px,3.5vw,36px);font-weight:700;letter-spacing:-0.5px;margin-bottom:16px;line-height:1.15}
+.section-desc{color:var(--muted2);font-size:15px;max-width:520px;line-height:1.7}
+
+/* ── FEATURE BENTO ── */
+.features{padding:80px 0}
+.bento{display:grid;grid-template-columns:repeat(12,1fr);gap:14px;margin-top:48px}
+
+.bcard{
+  background:var(--surface);border:1px solid var(--border);border-radius:14px;
+  padding:28px;transition:border-color .2s,background .2s;position:relative;overflow:hidden;
+}
+.bcard:hover{border-color:var(--border2);background:var(--surface2)}
+.bcard::before{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(circle at 30% 30%, rgba(59,91,255,0.04) 0%, transparent 60%);
+}
+.bcard-icon{
+  width:42px;height:42px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:18px;
+}
+.bcard h3{font-size:15px;font-weight:600;margin-bottom:7px;letter-spacing:-0.2px}
+.bcard p{font-size:13px;color:var(--muted);line-height:1.65}
+
+.bcard-sm{grid-column:span 4}
+.bcard-md{grid-column:span 6}
+.bcard-lg{grid-column:span 8}
+.bcard-xl{grid-column:span 12}
+
+/* ── DEMO SECTION ── */
+.demo-section{padding:80px 0}
+.demo-feature{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;margin-top:48px}
+.demo-feature.flip{direction:rtl}
+.demo-feature.flip > *{direction:ltr}
+.demo-feature + .demo-feature{margin-top:72px}
+
+.demo-media{
+  position:relative;border-radius:14px;overflow:hidden;
+  border:1px solid var(--border);
+  background:var(--surface);
+}
+.demo-media img{width:100%;display:block}
+.demo-media-tag{
+  position:absolute;top:14px;left:14px;
+  padding:4px 12px;border-radius:100px;font-size:11px;font-weight:600;
+  letter-spacing:0.5px;text-transform:uppercase;
+  background:rgba(7,7,10,0.75);border:1px solid var(--border2);color:var(--muted2);
+  backdrop-filter:blur(8px);
+}
+
+.demo-text{}
+.demo-text .section-eyebrow{margin-bottom:8px}
+.demo-text .section-title{margin-bottom:14px}
+.demo-text .section-desc{max-width:100%}
+.demo-text ul{
+  list-style:none;margin-top:20px;display:flex;flex-direction:column;gap:8px;
+}
+.demo-text ul li{
+  display:flex;align-items:flex-start;gap:10px;font-size:14px;color:var(--muted2);
+}
+.demo-text ul li::before{
+  content:'→';color:var(--accent2);font-size:13px;margin-top:2px;flex-shrink:0;
+  font-family:'JetBrains Mono',monospace;
+}
+
+/* ── REMESH SHOWCASE ── */
+.remesh-section{padding:80px 0}
+.remesh-img-wrap{
+  margin-top:48px;border-radius:16px;overflow:hidden;
+  border:1px solid var(--border);
+  background:var(--surface);
+  max-width:900px;
+}
+.remesh-img-wrap img{width:100%;display:block}
+
+/* ── MODES ── */
+.modes{padding:80px 0}
+.mode-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:48px}
+.mode-card{
+  text-align:center;padding:36px 24px;background:var(--surface);border:1px solid var(--border);border-radius:14px;
+  transition:border-color .2s,transform .2s;
+}
+.mode-card:hover{border-color:var(--border2);transform:translateY(-2px)}
+.mode-icon{font-size:32px;margin-bottom:16px;display:block}
+.mode-card h3{font-size:16px;font-weight:600;margin-bottom:8px;font-family:'Syne',sans-serif}
+.mode-card p{font-size:13px;color:var(--muted);line-height:1.6}
+
+/* ── PRICING ── */
 .pricing{padding:80px 0}
-.price-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;margin-top:48px}
+.price-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:48px}
 .price-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:32px;position:relative}
 .price-card.popular{border-color:var(--accent)}
-.price-card.popular::before{content:'Most Popular';position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--accent);color:#fff;padding:4px 16px;border-radius:100px;font-size:12px;font-weight:600}
-.price-tier{font-size:14px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:8px}
-.price-amount{font-size:42px;font-weight:700;margin-bottom:4px}
-.price-amount span{font-size:16px;color:var(--muted);font-weight:400}
+.price-card.popular::before{
+  content:'Most Popular';position:absolute;top:-12px;left:50%;transform:translateX(-50%);
+  background:var(--accent);color:#fff;padding:4px 16px;border-radius:100px;
+  font-size:11px;font-weight:700;letter-spacing:0.5px;white-space:nowrap;
+}
+.price-tier{font-size:11px;text-transform:uppercase;letter-spacing:2px;color:var(--muted);margin-bottom:10px;font-family:'JetBrains Mono',monospace}
+.price-amount{font-size:44px;font-weight:700;margin-bottom:4px;font-family:'Syne',sans-serif;letter-spacing:-1px}
+.price-amount span{font-size:16px;color:var(--muted);font-weight:400;font-family:'DM Sans',sans-serif}
 .price-period{font-size:13px;color:var(--muted);margin-bottom:24px}
-.price-features{list-style:none;margin-bottom:28px}
-.price-features li{padding:6px 0;font-size:14px;color:var(--muted);display:flex;align-items:center;gap:8px}
-.price-features li::before{content:'✓';color:var(--green);font-weight:700}
-.price-features li.locked::before{content:'✕';color:var(--border)}
-.price-btn{display:block;width:100%;padding:12px;text-align:center;border-radius:8px;font-size:14px;font-weight:600;border:none;cursor:pointer;transition:all .2s}
+.price-features{list-style:none;margin-bottom:28px;display:flex;flex-direction:column;gap:6px}
+.price-features li{padding:5px 0;font-size:13px;color:var(--muted2);display:flex;align-items:center;gap:9px}
+.price-features li::before{content:'✓';color:var(--green);font-weight:700;font-size:12px}
+.price-features li.locked{color:var(--border2)}
+.price-features li.locked::before{content:'✕';color:var(--border2)}
+.price-btn{display:block;width:100%;padding:12px;text-align:center;border-radius:8px;font-size:14px;font-weight:600;border:none;cursor:pointer;transition:all .2s;font-family:'DM Sans',sans-serif}
 .price-btn-primary{background:var(--accent);color:#fff}
-.price-btn-primary:hover{background:var(--accent2);text-decoration:none}
-.price-btn-outline{background:transparent;border:1px solid var(--border);color:var(--text)}
+.price-btn-primary:hover{background:#2d4de0;text-decoration:none}
+.price-btn-outline{background:transparent;border:1px solid var(--border2);color:var(--text)}
 .price-btn-outline:hover{border-color:var(--muted);text-decoration:none}
-.price-or{text-align:center;font-size:12px;color:var(--muted);margin:8px 0}
+.price-or{text-align:center;font-size:11px;color:var(--muted);margin:8px 0}
 .price-monthly{display:block;width:100%;padding:10px;text-align:center;border-radius:8px;font-size:13px;border:1px solid var(--border);color:var(--muted);background:transparent;cursor:pointer;transition:all .2s}
-.price-monthly:hover{border-color:var(--muted);text-decoration:none;color:var(--text)}
+.price-monthly:hover{border-color:var(--muted2);text-decoration:none;color:var(--text)}
 
-/* Modes */
-.modes{padding:80px 0}
-.mode-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:48px}
-.mode-card{text-align:center;padding:32px 20px;background:var(--surface);border:1px solid var(--border);border-radius:14px}
-.mode-card h3{font-size:18px;margin:16px 0 8px}
-.mode-card p{font-size:14px;color:var(--muted)}
-.mode-icon{font-size:36px}
+/* ── FINAL CTA ── */
+.final-cta{padding:80px 0 100px;text-align:center;position:relative;overflow:hidden}
+.final-cta::before{
+  content:'';position:absolute;bottom:-200px;left:50%;transform:translateX(-50%);
+  width:600px;height:400px;
+  background:radial-gradient(ellipse,rgba(59,91,255,0.1) 0%,transparent 70%);
+  pointer-events:none;
+}
+.final-cta h2{font-family:'Syne',sans-serif;font-size:clamp(28px,4vw,44px);font-weight:800;margin-bottom:16px;letter-spacing:-1px}
+.final-cta p{font-size:16px;color:var(--muted2);margin-bottom:36px;max-width:400px;margin-left:auto;margin-right:auto;line-height:1.7}
 
-/* CTA */
-.final-cta{padding:80px 0;text-align:center}
-.final-cta h2{font-size:36px;font-weight:700;margin-bottom:16px}
-.final-cta p{font-size:16px;color:var(--muted);margin-bottom:32px;max-width:480px;margin-left:auto;margin-right:auto}
-
-/* Footer */
+/* ── FOOTER ── */
 footer{padding:40px 0;border-top:1px solid var(--border);text-align:center;color:var(--muted);font-size:13px}
 
-@media(max-width:768px){
-    .mode-grid{grid-template-columns:1fr}
-    .price-grid{grid-template-columns:1fr;max-width:400px;margin-left:auto;margin-right:auto}
-    h1{font-size:36px}
+/* ── MODAL ── */
+#checkout-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:1000;align-items:center;justify-content:center;backdrop-filter:blur(6px)}
+.modal-inner{background:var(--surface);border:1px solid var(--border2);border-radius:16px;padding:36px;max-width:440px;width:90%;position:relative}
+.modal-close{position:absolute;top:14px;right:18px;background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;line-height:1}
+.modal-close:hover{color:var(--text)}
+#modal-title{color:var(--text);font-size:20px;font-weight:700;margin-bottom:20px;text-align:center;font-family:'Syne',sans-serif}
+
+#payment-status{display:none}
+
+@media(max-width:900px){
+  .demo-strip-inner{grid-template-columns:1fr}
+  .demo-tile img,.demo-tile video{height:200px}
+  .demo-feature,.demo-feature.flip{grid-template-columns:1fr;direction:ltr}
+  .price-grid,.mode-grid{grid-template-columns:1fr;max-width:420px;margin-left:auto;margin-right:auto}
+  .bcard-sm,.bcard-md,.bcard-lg,.bcard-xl{grid-column:span 12}
+}
+@media(max-width:600px){
+  h1{font-size:38px}
+  .container{padding:0 20px}
+  .demo-strip-inner{padding:0 20px}
 }
 </style>
 </head>
 <body>
 
+<!-- ═══════════════════ HERO ═══════════════════ -->
 <section class="hero">
-<div class="container">
-    <div class="badge">For Blender 4.0+</div>
-    <h1>Draw a line.<br><span>Cut your mesh.</span></h1>
-    <p>ZBrush-style interactive curve cutting for Blender. Trim, slice, and carve meshes with precision — in Object, Sculpt, and Edit mode.</p>
-    <div class="cta-row">
-        <a href="#pricing" class="btn btn-primary">Get CurveSlice Pro</a>
-        <a href="#features" class="btn btn-outline">See Features</a>
+  <div class="hero-bg"></div>
+  <div class="hero-noise"></div>
+  <div class="container">
+    <div class="badge">
+      <span class="badge-dot"></span>
+      Blender 4.0+ · V2.0 Released
     </div>
-</div>
+    <h1>
+      <span class="line1">Draw a line.</span>
+      <span class="line2">Cut your mesh.</span>
+    </h1>
+    <p class="hero-sub">ZBrush-style interactive curve cutting for Blender. Trim, slice, and carve meshes with precision — in Object, Sculpt, and Edit mode.</p>
+    <div class="cta-row">
+      <a href="#pricing" class="btn btn-primary">Get CurveSlice Pro</a>
+      <a href="#demo" class="btn btn-outline">See it in action</a>
+    </div>
+  </div>
 </section>
 
+<!-- ═══════════════════ DEMO STRIP (3 GIFs) ═══════════════════ -->
+<div class="demo-strip" id="demo">
+  <div class="demo-strip-inner">
+
+    <div class="demo-tile">
+      <img src="CurveSliceProV2_0-ezgif_com-speed.gif" alt="Draw a line across any mesh to cut it" loading="lazy">
+      <div class="demo-tile-label">
+        <span>Live</span><br>
+        Draw &amp; cut in real time
+      </div>
+    </div>
+
+    <div class="demo-tile">
+      <img src="CurveSliceProV2_0-ezgif_com-speed__bezier_.gif" alt="Bezier curve cutting" loading="lazy">
+      <div class="demo-tile-label">
+        <span>Bezier</span><br>
+        Smooth curves, easy
+      </div>
+    </div>
+
+    <div class="demo-tile">
+      <img src="CurveSliceProV2_0-ezgif_com-crop__Holes_.gif" alt="Punch holes with closed loops" loading="lazy">
+      <div class="demo-tile-label">
+        <span>Closed Loop</span><br>
+        Punch holes &amp; extract shapes
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════ FEATURES BENTO ═══════════════════ -->
 <section class="features" id="features">
 <div class="container">
-    <div class="section-label">Features</div>
-    <div class="section-title">Everything you need to cut</div>
-    <div class="feature-grid">
-        <div class="feature-card">
-            <div class="feature-icon" style="background:rgba(37,99,235,0.15);color:var(--accent2)">✂</div>
-            <h3>Three Cut Modes</h3>
-            <p>Trim removes one side. Slice splits into two pieces. Intersect extracts shapes. All with a single drawn curve.</p>
-        </div>
-        <div class="feature-card">
-            <div class="feature-icon" style="background:rgba(234,179,8,0.15);color:var(--gold)">⭕</div>
-            <h3>Closed Loop Cuts</h3>
-            <p>Draw a closed shape to punch holes or extract regions. Inward and outward modes detected automatically.</p>
-        </div>
-        <div class="feature-card">
-            <div class="feature-icon" style="background:rgba(239,68,68,0.15);color:var(--red)">🎨</div>
-            <h3>Live Visualization</h3>
-            <p>See exactly what will be removed before you cut. Red overlay shows the affected area in real time with ray-clipped precision.</p>
-        </div>
-        <div class="feature-card">
-            <div class="feature-icon" style="background:rgba(34,197,94,0.15);color:var(--green)">🗿</div>
-            <h3>Sculpt Mode</h3>
-            <p>Cut directly while sculpting. The addon handles mode transitions automatically — cut and keep sculpting.</p>
-        </div>
-        <div class="feature-card">
-            <div class="feature-icon" style="background:rgba(139,92,246,0.15);color:#8b5cf6">◼</div>
-            <h3>Auto Remesh</h3>
-            <p>Voxel, QuadriFlow, or QuadRemesher — clean topology after every cut. Configurable and automatic.</p>
-        </div>
-        <div class="feature-card">
-            <div class="feature-icon" style="background:rgba(236,72,153,0.15);color:#ec4899">🔒</div>
-            <h3>View Lock</h3>
-            <p>The viewport locks while drawing so you never accidentally rotate your view mid-cut. Focus on precision.</p>
-        </div>
+  <div class="section-eyebrow">Features</div>
+  <div class="section-title">Everything you need to cut</div>
+  <div class="bento">
+
+    <div class="bcard bcard-sm">
+      <div class="bcard-icon" style="background:rgba(59,91,255,0.12);color:var(--accent2)">✂️</div>
+      <h3>Three Cut Modes</h3>
+      <p>Trim removes one side. Slice splits into two. Intersect extracts shapes — all from a single drawn curve.</p>
     </div>
+
+    <div class="bcard bcard-sm">
+      <div class="bcard-icon" style="background:rgba(240,180,41,0.12);color:var(--gold)">⭕</div>
+      <h3>Closed Loop Cuts</h3>
+      <p>Draw a closed shape to punch holes or extract regions. Inward and outward modes detected automatically.</p>
+    </div>
+
+    <div class="bcard bcard-sm">
+      <div class="bcard-icon" style="background:rgba(255,68,85,0.12);color:var(--red)">🎨</div>
+      <h3>Live Visualization</h3>
+      <p>Red overlay shows exactly what will be removed before you cut — ray-clipped and precise.</p>
+    </div>
+
+    <div class="bcard bcard-md">
+      <div class="bcard-icon" style="background:rgba(34,212,110,0.12);color:var(--green)">🗿</div>
+      <h3>Sculpt Mode Support</h3>
+      <p>Cut directly while sculpting. The addon handles all mode transitions automatically — cut and keep sculpting without breaking your flow.</p>
+    </div>
+
+    <div class="bcard bcard-md">
+      <div class="bcard-icon" style="background:rgba(139,92,246,0.12);color:var(--purple)">◼</div>
+      <h3>Auto Remesh</h3>
+      <p>Voxel, QuadriFlow, or QuadRemesher — get clean topology after every cut. Fully configurable and automatic, so you can focus on sculpting rather than cleanup.</p>
+    </div>
+
+    <div class="bcard bcard-sm">
+      <div class="bcard-icon" style="background:rgba(96,165,250,0.12);color:#60a5fa">🔒</div>
+      <h3>View Lock</h3>
+      <p>Viewport locks while drawing so you never accidentally rotate mid-cut.</p>
+    </div>
+
+    <div class="bcard bcard-sm">
+      <div class="bcard-icon" style="background:rgba(236,72,153,0.12);color:#ec4899">〜</div>
+      <h3>Bezier Curves</h3>
+      <p>Switch between straight and smooth bezier cuts with a single keypress.</p>
+    </div>
+
+    <div class="bcard bcard-sm">
+      <div class="bcard-icon" style="background:rgba(240,180,41,0.12);color:var(--gold)">↩</div>
+      <h3>Undo Support</h3>
+      <p>Full Blender-native undo integration. Experiment freely.</p>
+    </div>
+
+  </div>
 </div>
 </section>
 
+<!-- ═══════════════════ DEMO FEATURE: BASIC CUT ═══════════════════ -->
+<section class="demo-section">
+<div class="container">
+  <div class="section-eyebrow">In Action</div>
+  <div class="section-title">See the workflow</div>
+
+  <!-- Row 1: Basic draw & cut -->
+  <div class="demo-feature">
+    <div class="demo-media">
+      <div class="demo-media-tag">Object Mode</div>
+      <img src="CurveSliceProV2_0-ezgif_com-speed.gif" alt="Drawing a line to cut a mesh in Blender">
+    </div>
+    <div class="demo-text">
+      <div class="section-eyebrow">Core Workflow</div>
+      <div class="section-title">Draw. Cut. Done.</div>
+      <div class="section-desc">Activate the tool, draw a line across your mesh, press Enter — and the cut is made. It really is that simple. Works on any mesh, any topology.</div>
+      <ul>
+        <li>Works in Object, Edit, and Sculpt mode</li>
+        <li>Straight lines or smooth bezier curves</li>
+        <li>Trim, Slice, or Intersect with one keypress</li>
+        <li>Live red preview before committing the cut</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Row 2: Bezier -->
+  <div class="demo-feature flip">
+    <div class="demo-media">
+      <div class="demo-media-tag">Bezier Mode</div>
+      <img src="CurveSliceProV2_0-ezgif_com-speed__bezier_.gif" alt="Bezier curve cutting in Blender">
+    </div>
+    <div class="demo-text">
+      <div class="section-eyebrow">Curve Control</div>
+      <div class="section-title">Bezier curves? Easy.</div>
+      <div class="section-desc">Toggle bezier mode mid-draw to get perfectly smooth, organic cuts. Control handles let you dial in exactly the curve you need — no approximating with extra points.</div>
+      <ul>
+        <li>Press B to toggle bezier on the fly</li>
+        <li>Drag handles to adjust curve tension</li>
+        <li>Ideal for organic shapes and character work</li>
+        <li>Same precision as straight-line mode</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Row 3: Closed loop / holes -->
+  <div class="demo-feature">
+    <div class="demo-media">
+      <div class="demo-media-tag">Closed Loop</div>
+      <img src="CurveSliceProV2_0-ezgif_com-crop__Holes_.gif" alt="Punching holes with closed loop cuts">
+    </div>
+    <div class="demo-text">
+      <div class="section-eyebrow">Closed Loops</div>
+      <div class="section-title">Punch holes with closed loops.</div>
+      <div class="section-desc">Close your curve to create a loop — CurveSlice Pro automatically detects whether you're cutting inward or outward and handles it correctly every time.</div>
+      <ul>
+        <li>Close the curve to activate loop mode</li>
+        <li>Punch holes or extract regions</li>
+        <li>Inward/outward detection is automatic</li>
+        <li>Flip with F if needed</li>
+      </ul>
+    </div>
+  </div>
+
+</div>
+</section>
+
+<!-- ═══════════════════ REMESH INFOGRAPHIC ═══════════════════ -->
+<section class="remesh-section">
+<div class="container">
+  <div class="section-eyebrow">Auto Remesh</div>
+  <div class="section-title">Clean topology after every cut</div>
+  <div class="section-desc">Choose your remesh method and CurveSlice Pro handles it automatically. From raw boolean topology to quad-dominant production meshes — without leaving Blender.</div>
+  <div class="remesh-img-wrap">
+    <img src="RemeshingInfoGraphic.png" alt="CurveSlice Pro Auto Remesh — Raw, Voxel, Quadriflow, and Quad Remesher comparison">
+  </div>
+</div>
+</section>
+
+<!-- ═══════════════════ MODES ═══════════════════ -->
 <section class="modes">
 <div class="container">
-    <div class="section-label">Workflow</div>
-    <div class="section-title">Works where you work</div>
-    <div class="mode-grid">
-        <div class="mode-card">
-            <div class="mode-icon">📦</div>
-            <h3>Object Mode</h3>
-            <p>The standard workflow. Select your target, draw, cut.</p>
-        </div>
-        <div class="mode-card">
-            <div class="mode-icon">🗿</div>
-            <h3>Sculpt Mode</h3>
-            <p>Cut without leaving sculpt. Returns you to sculpting after the cut.</p>
-        </div>
-        <div class="mode-card">
-            <div class="mode-icon">✏️</div>
-            <h3>Edit Mode</h3>
-            <p>Precise cuts during modeling. Automatic mode transitions.</p>
-        </div>
+  <div class="section-eyebrow">Workflow</div>
+  <div class="section-title">Works where you work</div>
+  <div class="mode-grid">
+    <div class="mode-card">
+      <span class="mode-icon">📦</span>
+      <h3>Object Mode</h3>
+      <p>The standard workflow. Select your target, draw, cut. Full feature access.</p>
     </div>
+    <div class="mode-card">
+      <span class="mode-icon">🗿</span>
+      <h3>Sculpt Mode</h3>
+      <p>Cut without ever leaving sculpt. Returns you to sculpting instantly after the cut.</p>
+    </div>
+    <div class="mode-card">
+      <span class="mode-icon">✏️</span>
+      <h3>Edit Mode</h3>
+      <p>Precise cuts during hard-surface modeling. Automatic mode transitions included.</p>
+    </div>
+  </div>
 </div>
 </section>
 
+<!-- ═══════════════════ PRICING ═══════════════════ -->
 <section class="pricing" id="pricing">
 <div class="container">
-    <div class="section-label">Pricing</div>
-    <div class="section-title">Choose your tier</div>
-    <div class="price-grid">
-        <div class="price-card">
-            <div class="price-tier">Free</div>
-            <div class="price-amount">$0</div>
-            <div class="price-period">7-day full trial, then 3 cuts/day</div>
-            <ul class="price-features">
-                <li>Object mode cutting</li>
-                <li>Straight &amp; Bezier curves</li>
-                <li>Trim, Slice, Intersect</li>
-                <li>Live visualization</li>
-                <li>Closed loop cuts</li>
-                <li class="locked">Auto remeshing</li>
-                <li class="locked">Edit &amp; Sculpt mode</li>
-            </ul>
-            <a href="https://github.com/JacobDSiler/CurveSlice-Pro/releases/download/2.0/curveslice_pro.V2.0.zip" class="price-btn price-btn-outline">Download Free</a>
-        </div>
-        <div class="price-card popular">
-            <div class="price-tier">Indie</div>
-            <div class="price-amount">$9<span>/mo</span></div>
-            <div class="price-period">$69/year (save 36%) · $149 perpetual</div>
-            <ul class="price-features">
-                <li>Everything in Free</li>
-                <li>Unlimited cuts</li>
-                <li>Edit mode support</li>
-                <li>Auto voxel remesh</li>
-                <li>3 device activations</li>
-                <li class="locked">Sculpt mode</li>
-                <li class="locked">QuadriFlow &amp; QuadRemesher</li>
-            </ul>
-            <a href="#" class="price-btn price-btn-primary" id="btn-indie-yearly">Best Value — $69/year</a>
-            <div class="price-or">or</div>
-            <div style="display:flex;gap:8px">
-                <a href="#" class="price-monthly" id="btn-indie-monthly" style="flex:1">$9/mo</a>
-                <a href="#" class="price-monthly" id="btn-indie-lifetime" style="flex:1">$149 forever</a>
-            </div>
-        </div>
-        <div class="price-card">
-            <div class="price-tier">Pro</div>
-            <div class="price-amount">$15<span>/mo</span></div>
-            <div class="price-period">$99/year (save 45%) · $249 perpetual</div>
-            <ul class="price-features">
-                <li>Everything in Indie</li>
-                <li>Sculpt mode cutting</li>
-                <li>QuadriFlow auto remesh</li>
-                <li>QuadRemesher support</li>
-                <li>5 device activations</li>
-                <li>Priority support</li>
-                <li>All future updates</li>
-            </ul>
-            <a href="#" class="price-btn price-btn-primary" id="btn-pro-yearly">Best Value — $99/year</a>
-            <div class="price-or">or</div>
-            <div style="display:flex;gap:8px">
-                <a href="#" class="price-monthly" id="btn-pro-monthly" style="flex:1">$15/mo</a>
-                <a href="#" class="price-monthly" id="btn-pro-lifetime" style="flex:1">$249 forever</a>
-            </div>
-        </div>
+  <div class="section-eyebrow">Pricing</div>
+  <div class="section-title">Choose your tier</div>
+  <div class="price-grid">
+
+    <div class="price-card">
+      <div class="price-tier">Free</div>
+      <div class="price-amount">$0</div>
+      <div class="price-period">7-day full trial, then 3 cuts/day</div>
+      <ul class="price-features">
+        <li>Object mode cutting</li>
+        <li>Straight &amp; Bezier curves</li>
+        <li>Trim, Slice, Intersect</li>
+        <li>Live visualization</li>
+        <li>Closed loop cuts</li>
+        <li class="locked">Auto remeshing</li>
+        <li class="locked">Edit &amp; Sculpt mode</li>
+      </ul>
+      <a href="https://github.com/JacobDSiler/CurveSlice-Pro/releases/download/2.0/curveslice_pro.V2.0.zip" class="price-btn price-btn-outline">Download Free</a>
     </div>
+
+    <div class="price-card popular">
+      <div class="price-tier">Indie</div>
+      <div class="price-amount">$9<span>/mo</span></div>
+      <div class="price-period">$69/year (save 36%) · $149 perpetual</div>
+      <ul class="price-features">
+        <li>Everything in Free</li>
+        <li>Unlimited cuts</li>
+        <li>Edit mode support</li>
+        <li>Auto voxel remesh</li>
+        <li>3 device activations</li>
+        <li class="locked">Sculpt mode</li>
+        <li class="locked">QuadriFlow &amp; QuadRemesher</li>
+      </ul>
+      <a href="#" class="price-btn price-btn-primary" id="btn-indie-yearly">Best Value — $69/year</a>
+      <div class="price-or">or</div>
+      <div style="display:flex;gap:8px">
+        <a href="#" class="price-monthly" id="btn-indie-monthly" style="flex:1">$9/mo</a>
+        <a href="#" class="price-monthly" id="btn-indie-lifetime" style="flex:1">$149 forever</a>
+      </div>
+    </div>
+
+    <div class="price-card">
+      <div class="price-tier">Pro</div>
+      <div class="price-amount">$15<span>/mo</span></div>
+      <div class="price-period">$99/year (save 45%) · $249 perpetual</div>
+      <ul class="price-features">
+        <li>Everything in Indie</li>
+        <li>Sculpt mode cutting</li>
+        <li>QuadriFlow auto remesh</li>
+        <li>QuadRemesher support</li>
+        <li>5 device activations</li>
+        <li>Priority support</li>
+        <li>All future updates</li>
+      </ul>
+      <a href="#" class="price-btn price-btn-primary" id="btn-pro-yearly">Best Value — $99/year</a>
+      <div class="price-or">or</div>
+      <div style="display:flex;gap:8px">
+        <a href="#" class="price-monthly" id="btn-pro-monthly" style="flex:1">$15/mo</a>
+        <a href="#" class="price-monthly" id="btn-pro-lifetime" style="flex:1">$249 forever</a>
+      </div>
+    </div>
+
+  </div>
 </div>
 </section>
 
+<!-- ═══════════════════ FINAL CTA ═══════════════════ -->
 <section class="final-cta">
 <div class="container">
-    <h2>Ready to cut?</h2>
-    <p>Download CurveSlice Pro and start making ZBrush-quality cuts in Blender today.</p>
-    <div class="cta-row">
-        <a href="#pricing" class="btn btn-primary">Get Started Free</a>
-    </div>
+  <h2>Ready to cut?</h2>
+  <p>Download CurveSlice Pro and start making ZBrush-quality cuts in Blender today.</p>
+  <div class="cta-row">
+    <a href="#pricing" class="btn btn-primary">Get Started Free</a>
+  </div>
 </div>
 </section>
 
 <footer>
 <div class="container">
-    <p>&copy; 2026 J.D. Siler. CurveSlice Pro for Blender.</p>
+  <p>&copy; 2026 J.D. Siler · CurveSlice Pro for Blender</p>
 </div>
 </footer>
 
 <div id="payment-status" style="display:none"></div>
 
-<!-- Checkout Modal -->
-<div id="checkout-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:1000;align-items:center;justify-content:center;backdrop-filter:blur(4px)">
-    <div style="background:#18181b;border:1px solid #27272a;border-radius:16px;padding:32px;max-width:440px;width:90%;position:relative">
-        <button onclick="closeCheckout()" style="position:absolute;top:12px;right:16px;background:none;border:none;color:#a1a1aa;font-size:20px;cursor:pointer">&times;</button>
-        <h3 id="modal-title" style="color:#fafafa;font-size:20px;font-weight:600;margin-bottom:20px;text-align:center"></h3>
-        <div id="modal-paypal"></div>
-        <p style="text-align:center;color:#64748b;font-size:11px;margin-top:16px">Secure payment via PayPal. License key delivered by email.</p>
-    </div>
+<!-- ═══════════════════ CHECKOUT MODAL ═══════════════════ -->
+<div id="checkout-modal">
+  <div class="modal-inner">
+    <button class="modal-close" onclick="closeCheckout()">&times;</button>
+    <div id="modal-title"></div>
+    <div id="modal-paypal"></div>
+    <p style="text-align:center;color:#444464;font-size:11px;margin-top:16px">Secure payment via PayPal. License key delivered by email.</p>
+  </div>
 </div>
 
-<!-- PayPal SDK — single instance for all payments -->
 <script src="https://www.paypal.com/sdk/js?client-id=Aby8-d7ghvHo6ajww9-pMgKQhkYoWht0VoOoJNebXKnc16RlptwEx9KTLBl3IxWljnDf_dvPtwWy0RzI&currency=USD&intent=subscription&vault=true"></script>
 <script>
-// ═══════════════════════════════════════════════════════════════════
-// CONFIGURATION — Replace these values with your actual IDs
-// ═══════════════════════════════════════════════════════════════════
-
-// PayPal Client ID from https://developer.paypal.com/dashboard/applications
-const PAYPAL_CLIENT_ID = 'YOUR_PAYPAL_CLIENT_ID';
-
-// PayPal subscription Plan IDs (create these in PayPal Dashboard > Subscriptions)
 const PAYPAL_PLANS = {
-    indie_monthly: 'P-7S105645HM843330MNGXQTSQ',
-    indie_yearly: 'P-6YX66240LS926554BNGXQ4PI',
-    pro_monthly: 'P-2S04336759655502VNGXQSJY',
-    pro_yearly: 'P-53Y53650N0452164BNGXQ57Y',
-    indie_perpetual: 'P-6XM00718L0606104SNGXTSDQ',
-    pro_perpetual: 'P-83164119MM785210MNGXTUIA',
+  indie_monthly:   'P-7S105645HM843330MNGXQTSQ',
+  indie_yearly:    'P-6YX66240LS926554BNGXQ4PI',
+  pro_monthly:     'P-2S04336759655502VNGXQSJY',
+  pro_yearly:      'P-53Y53650N0452164BNGXQ57Y',
+  indie_perpetual: 'P-6XM00718L0606104SNGXTSDQ',
+  pro_perpetual:   'P-83164119MM785210MNGXTUIA',
 };
 
-// Your PayPal.me username for one-time payments
-const PAYPAL_ME = 'SkyBridgeSaga'; // Change to your PayPal.me username
-
-// Your license generation endpoint
-const LICENSE_API = 'https://us-central1-curveslivepro-licensing.cloudfunctions.net/generateLicense';
-const ADMIN_SECRET = 'csp-admin-2026-xK9mP4wL7nR2';
-
-// ═══════════════════════════════════════════════════════════════════
-// PAYMENT HANDLER — all plans use PayPal subscriptions
-// ═══════════════════════════════════════════════════════════════════
-
-function setupPayPalButton(containerId, planId, tier, label) {
-    paypal.Buttons({
-        style: { layout: 'vertical', color: 'blue', shape: 'pill', label: 'subscribe' },
-        createSubscription: (data, actions) => actions.subscription.create({ plan_id: planId }),
-        onApprove: (data) => {
-            closeCheckout();
-            document.getElementById('payment-status').style.display = 'block';
-            document.getElementById('payment-status').innerHTML =
-                `<div style="background:#1a1a2e;border:1px solid #22c55e;border-radius:12px;padding:24px;margin:20px auto;max-width:500px;text-align:center">
-                    <h3 style="color:#22c55e;margin-bottom:8px">Payment Successful!</h3>
-                    <p style="color:#a1a1aa;font-size:14px">Your ${tier} license key will be emailed shortly.</p>
-                    <p style="color:#64748b;font-size:12px;margin-top:8px">Check your email (and spam folder) for your key.</p>
-                </div>`;
-        },
-        onError: (err) => {
-            console.error('PayPal error:', err);
-            modalPaypal.innerHTML = '<p style="color:#ef4444;text-align:center;padding:16px">Payment could not be processed. Please try again.</p>';
-        }
-    }).render(containerId);
-}
-
-// ═══════════════════════════════════════════════════════════════════
-// MODAL CHECKOUT
-// ═══════════════════════════════════════════════════════════════════
-
-const modal = document.getElementById('checkout-modal');
+const modal      = document.getElementById('checkout-modal');
 const modalTitle = document.getElementById('modal-title');
-const modalPaypal = document.getElementById('modal-paypal');
+const modalPaypal= document.getElementById('modal-paypal');
+
+function setupPayPalButton(containerId, planId, tier) {
+  paypal.Buttons({
+    style:{layout:'vertical',color:'blue',shape:'pill',label:'subscribe'},
+    createSubscription:(_,a)=>a.subscription.create({plan_id:planId}),
+    onApprove:()=>{
+      closeCheckout();
+      const ps=document.getElementById('payment-status');
+      ps.style.display='block';
+      ps.innerHTML=`<div style="background:#0d1f14;border:1px solid var(--green);border-radius:12px;padding:24px;margin:20px auto;max-width:500px;text-align:center">
+        <h3 style="color:var(--green);margin-bottom:8px">Payment Successful!</h3>
+        <p style="color:var(--muted2);font-size:14px">Your ${tier} license key will be emailed shortly.</p>
+        <p style="color:var(--muted);font-size:12px;margin-top:8px">Check your email (and spam folder) for your key.</p>
+      </div>`;
+    },
+    onError:(err)=>{
+      console.error(err);
+      modalPaypal.innerHTML='<p style="color:var(--red);text-align:center;padding:16px">Payment could not be processed. Please try again.</p>';
+    }
+  }).render(containerId);
+}
 
 function openCheckout(tier, type) {
-    const labels = { lifetime: 'Perpetual License', yearly: 'Yearly', monthly: 'Monthly' };
-    modalTitle.textContent = `${tier} — ${labels[type]}`;
-    modalPaypal.innerHTML = '';
-    modal.style.display = 'flex';
+  const labels={lifetime:'Perpetual License',yearly:'Yearly',monthly:'Monthly'};
+  modalTitle.textContent=`${tier} — ${labels[type]}`;
+  modalPaypal.innerHTML='';
+  modal.style.display='flex';
 
-    if (type === 'lifetime') {
-        // Perpetual: custom checkout UI — no "Subscribe" button
-        const amount = tier === 'Indie' ? 149 : 249;
-        const desc = encodeURIComponent(`CurveSlice Pro ${tier} Perpetual License`);
-        const paypalURL = `https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=jacob.siler91%40gmail.com&item_name=${desc}&amount=${amount}&currency_code=USD&no_shipping=1&return=https://curveslice.jacobsiler.com`;
-
-        modalPaypal.innerHTML =
-            `<div style="text-align:center;padding:12px 0">
-                <p style="color:#fafafa;font-size:22px;font-weight:700;margin-bottom:4px">$${amount}</p>
-                <p style="color:#a1a1aa;font-size:13px;margin-bottom:20px">One-time payment · Lifetime access · No subscription</p>
-                <a href="${paypalURL}" target="_blank" rel="noopener"
-                   style="display:inline-flex;align-items:center;justify-content:center;gap:8px;width:100%;background:#0070ba;color:#fff;padding:14px 24px;border-radius:24px;font-size:15px;font-weight:600;text-decoration:none;margin-bottom:10px">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.106zm14.146-14.42a3.35 3.35 0 0 0-.607-.541c-.013.076-.026.175-.041.254-.93 4.778-4.005 7.201-9.138 7.201h-2.19a.563.563 0 0 0-.556.479l-1.187 7.527h-.506l-.24 1.516a.56.56 0 0 0 .554.647h3.882c.46 0 .85-.334.922-.788l.038-.2.73-4.627.047-.256a.925.925 0 0 1 .913-.786h.574c3.727 0 6.643-1.514 7.496-5.896.357-1.832.172-3.362-.766-4.53z"/></svg>
-                    Pay Now with PayPal
-                </a>
-                <p style="color:#64748b;font-size:11px;margin-top:8px">After payment, your license key will be emailed within a few hours.</p>
-            </div>`;
-    } else {
-        // Monthly/Yearly: PayPal subscription buttons
-        const containerId = `paypal-btn-${Date.now()}`;
-        const div = document.createElement('div');
-        div.id = containerId;
-        modalPaypal.appendChild(div);
-
-        const planKey = `${tier.toLowerCase()}_${type}`;
-        if (PAYPAL_PLANS[planKey]) {
-            setupPayPalButton('#' + containerId, PAYPAL_PLANS[planKey], tier, labels[type]);
-        } else {
-            modalPaypal.innerHTML = '<p style="color:#a1a1aa;text-align:center">Plan not configured.</p>';
-        }
-    }
+  if(type==='lifetime'){
+    const amount=tier==='Indie'?149:249;
+    const desc=encodeURIComponent(`CurveSlice Pro ${tier} Perpetual License`);
+    const url=`https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=jacob.siler91%40gmail.com&item_name=${desc}&amount=${amount}&currency_code=USD&no_shipping=1`;
+    modalPaypal.innerHTML=`<div style="text-align:center;padding:12px 0">
+      <p style="color:var(--text);font-size:24px;font-weight:700;margin-bottom:4px;font-family:'Syne',sans-serif">$${amount}</p>
+      <p style="color:var(--muted);font-size:13px;margin-bottom:20px">One-time · Lifetime access · No subscription</p>
+      <a href="${url}" target="_blank" rel="noopener"
+         style="display:inline-flex;align-items:center;justify-content:center;gap:8px;width:100%;background:#0070ba;color:#fff;padding:14px 24px;border-radius:24px;font-size:15px;font-weight:600;text-decoration:none">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.106zm14.146-14.42a3.35 3.35 0 0 0-.607-.541c-.013.076-.026.175-.041.254-.93 4.778-4.005 7.201-9.138 7.201h-2.19a.563.563 0 0 0-.556.479l-1.187 7.527h-.506l-.24 1.516a.56.56 0 0 0 .554.647h3.882c.46 0 .85-.334.922-.788l.038-.2.73-4.627.047-.256a.925.925 0 0 1 .913-.786h.574c3.727 0 6.643-1.514 7.496-5.896.357-1.832.172-3.362-.766-4.53z"/></svg>
+        Pay with PayPal
+      </a>
+      <p style="color:var(--muted);font-size:11px;margin-top:12px">License key emailed after payment confirmation.</p>
+    </div>`;
+  } else {
+    const cid='paypal-btn-'+Date.now();
+    const div=document.createElement('div');
+    div.id=cid;
+    modalPaypal.appendChild(div);
+    const planKey=`${tier.toLowerCase()}_${type}`;
+    if(PAYPAL_PLANS[planKey]) setupPayPalButton('#'+cid,PAYPAL_PLANS[planKey],tier);
+    else modalPaypal.innerHTML='<p style="color:var(--muted);text-align:center">Plan not configured.</p>';
+  }
 }
 
-function closeCheckout() { modal.style.display = 'none'; }
-modal?.addEventListener('click', (e) => { if (e.target === modal) closeCheckout(); });
+function closeCheckout(){modal.style.display='none'}
+modal?.addEventListener('click',(e)=>{if(e.target===modal)closeCheckout()});
 
-// Wire up buttons
-document.getElementById('btn-indie-yearly').addEventListener('click', (e) => { e.preventDefault(); openCheckout('Indie', 'yearly'); });
-document.getElementById('btn-indie-monthly').addEventListener('click', (e) => { e.preventDefault(); openCheckout('Indie', 'monthly'); });
-document.getElementById('btn-indie-lifetime').addEventListener('click', (e) => { e.preventDefault(); openCheckout('Indie', 'lifetime'); });
-document.getElementById('btn-pro-yearly').addEventListener('click', (e) => { e.preventDefault(); openCheckout('Pro', 'yearly'); });
-document.getElementById('btn-pro-monthly').addEventListener('click', (e) => { e.preventDefault(); openCheckout('Pro', 'monthly'); });
-document.getElementById('btn-pro-lifetime').addEventListener('click', (e) => { e.preventDefault(); openCheckout('Pro', 'lifetime'); });
+document.getElementById('btn-indie-yearly')  .addEventListener('click',(e)=>{e.preventDefault();openCheckout('Indie','yearly')});
+document.getElementById('btn-indie-monthly') .addEventListener('click',(e)=>{e.preventDefault();openCheckout('Indie','monthly')});
+document.getElementById('btn-indie-lifetime').addEventListener('click',(e)=>{e.preventDefault();openCheckout('Indie','lifetime')});
+document.getElementById('btn-pro-yearly')    .addEventListener('click',(e)=>{e.preventDefault();openCheckout('Pro','yearly')});
+document.getElementById('btn-pro-monthly')   .addEventListener('click',(e)=>{e.preventDefault();openCheckout('Pro','monthly')});
+document.getElementById('btn-pro-lifetime')  .addEventListener('click',(e)=>{e.preventDefault();openCheckout('Pro','lifetime')});
 </script>
 </body>
 </html>
