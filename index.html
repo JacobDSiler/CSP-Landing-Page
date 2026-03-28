@@ -225,7 +225,7 @@ footer{padding:40px 0;border-top:1px solid var(--border);text-align:center;color
       <span class="trust-sep">·</span>
       <span>✓ Installs in 30 seconds</span>
       <span class="trust-sep">·</span>
-      <span>✓ Then 3 free cuts/day forever</span>
+      <span>✓ Then 10 free cuts/day forever</span>
     </div>
   </div>
 </section>
@@ -407,7 +407,7 @@ footer{padding:40px 0;border-top:1px solid var(--border);text-align:center;color
     <div class="price-card">
       <div class="price-tier">Free</div>
       <div class="price-amount">$0</div>
-      <div class="price-period">7-day full trial, then 3 cuts/day</div>
+      <div class="price-period">7-day full trial, then 10 cuts/day</div>
       <ul class="price-features">
         <li>Object mode cutting</li>
         <li>Straight &amp; Bezier curves</li>
@@ -425,8 +425,8 @@ footer{padding:40px 0;border-top:1px solid var(--border);text-align:center;color
 
     <div class="price-card popular">
       <div class="price-tier">Indie</div>
-      <div class="price-amount">$9<span>/mo</span></div>
-      <div class="price-period">$69/year (save 36%) · $149 perpetual</div>
+      <div class="price-amount">$5<span>/mo</span></div>
+      <div class="price-period">$39/year (save 35%) · $99 perpetual</div>
       <ul class="price-features">
         <li>Everything in Free</li>
         <li>Unlimited cuts</li>
@@ -436,18 +436,18 @@ footer{padding:40px 0;border-top:1px solid var(--border);text-align:center;color
         <li class="locked">Sculpt mode</li>
         <li class="locked">QuadriFlow &amp; QuadRemesher</li>
       </ul>
-      <a href="#" class="price-btn price-btn-primary" id="btn-indie-yearly">Best Value — $69/year</a>
+      <a href="#" class="price-btn price-btn-primary" id="btn-indie-yearly">Best Value — $39/year</a>
       <div class="price-or">or</div>
       <div style="display:flex;gap:8px">
-        <a href="#" class="price-monthly" id="btn-indie-monthly" style="flex:1">$9/mo</a>
-        <a href="#" class="price-monthly" id="btn-indie-lifetime" style="flex:1">$149 forever</a>
+        <a href="#" class="price-monthly" id="btn-indie-monthly" style="flex:1">$5/mo</a>
+        <a href="#" class="price-monthly" id="btn-indie-lifetime" style="flex:1">$99 forever</a>
       </div>
     </div>
 
     <div class="price-card">
       <div class="price-tier">Pro</div>
-      <div class="price-amount">$15<span>/mo</span></div>
-      <div class="price-period">$99/year (save 45%) · $249 perpetual</div>
+      <div class="price-amount">$8<span>/mo</span></div>
+      <div class="price-period">$59/year (save 38%) · $149 perpetual</div>
       <ul class="price-features">
         <li>Everything in Indie</li>
         <li>Sculpt mode cutting</li>
@@ -457,11 +457,11 @@ footer{padding:40px 0;border-top:1px solid var(--border);text-align:center;color
         <li>Priority support</li>
         <li>All future updates</li>
       </ul>
-      <a href="#" class="price-btn price-btn-primary" id="btn-pro-yearly">Best Value — $99/year</a>
+      <a href="#" class="price-btn price-btn-primary" id="btn-pro-yearly">Best Value — $59/year</a>
       <div class="price-or">or</div>
       <div style="display:flex;gap:8px">
-        <a href="#" class="price-monthly" id="btn-pro-monthly" style="flex:1">$15/mo</a>
-        <a href="#" class="price-monthly" id="btn-pro-lifetime" style="flex:1">$249 forever</a>
+        <a href="#" class="price-monthly" id="btn-pro-monthly" style="flex:1">$8/mo</a>
+        <a href="#" class="price-monthly" id="btn-pro-lifetime" style="flex:1">$149 forever</a>
       </div>
     </div>
 
@@ -585,7 +585,7 @@ function openCheckout(tier, type) {
   modal.style.display = 'flex';
 
   if (type === 'lifetime') {
-    const amount = tier === 'Indie' ? 149 : 249;
+    const amount = tier === 'Indie' ? 99 : 149;
     const desc = encodeURIComponent(`CurveSlice Pro ${tier} Perpetual License`);
     const url = `https://www.paypal.com/cgi-bin/webscr?cmd=_xclick&business=jacob.siler91%40gmail.com&item_name=${desc}&amount=${amount}&currency_code=USD&no_shipping=1`;
     modalPaypal.innerHTML = `<div style="text-align:center;padding:12px 0">
