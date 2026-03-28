@@ -234,6 +234,94 @@ h1 .line2{
 /* ── FOOTER ── */
 footer{padding:40px 0;border-top:1px solid var(--border);text-align:center;color:var(--muted);font-size:13px}
 
+/* ── FREE BUTTON ── */
+@keyframes pulse-ring{
+  0%{box-shadow:0 0 0 0 rgba(34,212,110,0.55),0 4px 24px rgba(34,212,110,0.25)}
+  70%{box-shadow:0 0 0 10px rgba(34,212,110,0),0 4px 24px rgba(34,212,110,0.15)}
+  100%{box-shadow:0 0 0 0 rgba(34,212,110,0),0 4px 24px rgba(34,212,110,0.25)}
+}
+.btn-free{
+  background:linear-gradient(135deg,#1a9e52,#22d46e);
+  color:#fff;font-weight:700;font-size:16px;
+  padding:16px 32px;border-radius:12px;border:none;cursor:pointer;
+  display:inline-flex;align-items:center;gap:10px;
+  animation:pulse-ring 2.4s ease-out infinite;
+  font-family:'DM Sans',sans-serif;
+  transition:transform .15s,filter .15s;
+  letter-spacing:-0.2px;
+}
+.btn-free:hover{transform:translateY(-2px);filter:brightness(1.1);text-decoration:none;color:#fff}
+.btn-free:active{transform:translateY(0)}
+
+/* Pricing card free button */
+.price-btn-free-dl{
+  background:linear-gradient(135deg,#1a9e52,#22d46e);
+  color:#fff;font-weight:700;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  animation:pulse-ring 2.4s ease-out infinite;
+  border:none;cursor:pointer;
+}
+.price-btn-free-dl:hover{filter:brightness(1.1);text-decoration:none;color:#fff}
+
+/* ── HERO TRUST STRIP ── */
+.hero-trust{
+  display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:6px;
+  margin-top:20px;font-size:12px;color:var(--muted);
+}
+.trust-sep{color:var(--border2)}
+
+/* ── DOWNLOAD MODAL ── */
+#download-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:2000;align-items:center;justify-content:center;backdrop-filter:blur(8px)}
+.dl-modal-inner{
+  background:var(--surface);border:1px solid var(--border2);border-radius:20px;
+  padding:44px 40px;max-width:480px;width:90%;position:relative;text-align:center;
+}
+.dl-modal-close{position:absolute;top:14px;right:18px;background:none;border:none;color:var(--muted);font-size:22px;cursor:pointer;line-height:1}
+.dl-modal-close:hover{color:var(--text)}
+.dl-icon{font-size:44px;margin-bottom:16px;display:block;
+  animation:bounce-dl .6s ease forwards;
+}
+@keyframes bounce-dl{
+  0%{transform:translateY(-8px);opacity:0}
+  60%{transform:translateY(4px)}
+  100%{transform:translateY(0);opacity:1}
+}
+.dl-title{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;margin-bottom:8px;letter-spacing:-0.5px}
+.dl-sub{font-size:14px;color:var(--muted2);margin-bottom:32px;line-height:1.6}
+.dl-steps{
+  display:flex;flex-direction:column;gap:0;margin-bottom:32px;
+  border:1px solid var(--border);border-radius:12px;overflow:hidden;
+  text-align:left;
+}
+.dl-step{
+  display:flex;align-items:flex-start;gap:14px;padding:16px 20px;
+  border-bottom:1px solid var(--border);
+  background:var(--bg);
+  transition:background .2s;
+}
+.dl-step:last-child{border-bottom:none}
+.dl-step-num{
+  width:26px;height:26px;border-radius:50%;
+  background:rgba(59,91,255,0.15);border:1px solid rgba(59,91,255,0.3);
+  color:var(--accent2);font-size:12px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  font-family:'JetBrains Mono',monospace;margin-top:1px;
+}
+.dl-step-text{font-size:13px;color:var(--muted2);line-height:1.55}
+.dl-step-text strong{color:var(--text);font-weight:600}
+.dl-btn{
+  display:flex;align-items:center;justify-content:center;gap:10px;
+  width:100%;padding:16px;border-radius:12px;font-size:15px;font-weight:700;
+  background:linear-gradient(135deg,#1a9e52,#22d46e);color:#fff;
+  border:none;cursor:pointer;font-family:'DM Sans',sans-serif;
+  animation:pulse-ring 2.4s ease-out infinite;
+  transition:filter .15s,transform .15s;
+  text-decoration:none;
+}
+.dl-btn:hover{filter:brightness(1.1);transform:translateY(-1px);text-decoration:none;color:#fff}
+.dl-fallback{font-size:11px;color:var(--muted);margin-top:12px}
+.dl-fallback a{color:var(--muted2)}
+
 /* ── MODAL ── */
 #checkout-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:1000;align-items:center;justify-content:center;backdrop-filter:blur(6px)}
 .modal-inner{background:var(--surface);border:1px solid var(--border2);border-radius:16px;padding:36px;max-width:440px;width:90%;position:relative}
@@ -274,8 +362,20 @@ footer{padding:40px 0;border-top:1px solid var(--border);text-align:center;color
     </h1>
     <p class="hero-sub">ZBrush-style interactive curve cutting for Blender. Trim, slice, and carve meshes with precision — in Object, Sculpt, and Edit mode.</p>
     <div class="cta-row">
-      <a href="#pricing" class="btn btn-primary">Get CurveSlice Pro</a>
+      <button onclick="openDownload()" class="btn btn-free">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Try Free — No Account Needed
+      </button>
       <a href="#demo" class="btn btn-outline">See it in action</a>
+    </div>
+    <div class="hero-trust">
+      <span>✓ 7-day full trial</span>
+      <span class="trust-sep">·</span>
+      <span>✓ No credit card</span>
+      <span class="trust-sep">·</span>
+      <span>✓ Installs in 30 seconds</span>
+      <span class="trust-sep">·</span>
+      <span>✓ Then 3 free cuts/day forever</span>
     </div>
   </div>
 </section>
@@ -493,7 +593,10 @@ footer{padding:40px 0;border-top:1px solid var(--border);text-align:center;color
         <li class="locked">Auto remeshing</li>
         <li class="locked">Edit &amp; Sculpt mode</li>
       </ul>
-      <a href="https://github.com/JacobDSiler/CurveSlice-Pro/releases/download/2.0/curveslice_pro.V2.0.zip" class="price-btn price-btn-outline">Download Free</a>
+      <button onclick="openDownload()" class="price-btn price-btn-free-dl">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Download Free
+      </button>
     </div>
 
     <div class="price-card popular">
@@ -546,9 +649,13 @@ footer{padding:40px 0;border-top:1px solid var(--border);text-align:center;color
 <section class="final-cta">
 <div class="container">
   <h2>Ready to cut?</h2>
-  <p>Download CurveSlice Pro and start making ZBrush-quality cuts in Blender today.</p>
+  <p>Start free today — full trial, no account, installs in under a minute.</p>
   <div class="cta-row">
-    <a href="#pricing" class="btn btn-primary">Get Started Free</a>
+    <button onclick="openDownload()" class="btn btn-free">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Try Free — No Account Needed
+    </button>
+    <a href="#pricing" class="btn btn-outline">View Pricing</a>
   </div>
 </div>
 </section>
@@ -560,6 +667,39 @@ footer{padding:40px 0;border-top:1px solid var(--border);text-align:center;color
 </footer>
 
 <div id="payment-status" style="display:none"></div>
+
+<!-- ═══════════════════ DOWNLOAD INTERSTITIAL MODAL ═══════════════════ -->
+<div id="download-modal">
+  <div class="dl-modal-inner">
+    <button class="dl-modal-close" onclick="closeDownload()">&times;</button>
+    <span class="dl-icon">⬇️</span>
+    <div class="dl-title">Your download is starting…</div>
+    <div class="dl-sub">Here's how to get CurveSlice Pro running in Blender<br>in under a minute.</div>
+    <div class="dl-steps">
+      <div class="dl-step">
+        <div class="dl-step-num">1</div>
+        <div class="dl-step-text"><strong>Save the zip file</strong> — don't unzip it. Blender installs directly from the zip.</div>
+      </div>
+      <div class="dl-step">
+        <div class="dl-step-num">2</div>
+        <div class="dl-step-text"><strong>Open Blender →</strong> Edit → Preferences → Add-ons → Install…</div>
+      </div>
+      <div class="dl-step">
+        <div class="dl-step-num">3</div>
+        <div class="dl-step-text"><strong>Select the zip</strong> and click Install Add-on. Then check the checkbox to enable it.</div>
+      </div>
+      <div class="dl-step">
+        <div class="dl-step-num">4</div>
+        <div class="dl-step-text"><strong>Find CurveSlice Pro</strong> in the N-panel (press N in viewport) and start cutting!</div>
+      </div>
+    </div>
+    <a id="dl-main-btn" href="https://github.com/JacobDSiler/CurveSlice-Pro/releases/download/2.0/curveslice_pro.V2.0.zip" class="dl-btn" download>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Download CurveSlice Pro Free
+    </a>
+    <div class="dl-fallback">Download not starting? <a href="https://github.com/JacobDSiler/CurveSlice-Pro/releases/download/2.0/curveslice_pro.V2.0.zip">Click here</a></div>
+  </div>
+</div>
 
 <!-- ═══════════════════ CHECKOUT MODAL ═══════════════════ -->
 <div id="checkout-modal">
@@ -573,7 +713,25 @@ footer{padding:40px 0;border-top:1px solid var(--border);text-align:center;color
 
 <script src="https://www.paypal.com/sdk/js?client-id=Aby8-d7ghvHo6ajww9-pMgKQhkYoWht0VoOoJNebXKnc16RlptwEx9KTLBl3IxWljnDf_dvPtwWy0RzI&currency=USD&intent=subscription&vault=true"></script>
 <script>
-const PAYPAL_PLANS = {
+const DOWNLOAD_URL = 'https://github.com/JacobDSiler/CurveSlice-Pro/releases/download/2.0/curveslice_pro.V2.0.zip';
+const dlModal = document.getElementById('download-modal');
+
+function openDownload() {
+  dlModal.style.display = 'flex';
+  // Trigger the download automatically after a short delay so the modal renders first
+  setTimeout(() => {
+    const a = document.createElement('a');
+    a.href = DOWNLOAD_URL;
+    a.download = 'curveslice_pro.V2.0.zip';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }, 400);
+}
+function closeDownload() { dlModal.style.display = 'none'; }
+dlModal?.addEventListener('click', (e) => { if (e.target === dlModal) closeDownload(); });
+
+
   indie_monthly:   'P-7S105645HM843330MNGXQTSQ',
   indie_yearly:    'P-6YX66240LS926554BNGXQ4PI',
   pro_monthly:     'P-2S04336759655502VNGXQSJY',
