@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- Dark background rounded square -->
+  <rect width="32" height="32" rx="7" fill="#07070a"/>
+  
+  <!-- Diagonal cut line — the core metaphor, glowing blue -->
+  <line x1="6" y1="26" x2="26" y2="6" 
+        stroke="#6b8fff" stroke-width="2.5" stroke-linecap="round"/>
+  
+  <!-- Left mesh half — darker -->
+  <path d="M6 26 L6 8 Q6 6 8 6 L21 6 Z" 
+        fill="rgba(59,91,255,0.18)" stroke="none"/>
+  
+  <!-- Right mesh half — lighter -->
+  <path d="M26 6 L26 24 Q26 26 24 26 L11 26 Z" 
+        fill="rgba(107,143,255,0.10)" stroke="none"/>
+
+  <!-- Cut line glow dot at top -->
+  <circle cx="26" cy="6" r="2.2" fill="#6b8fff"/>
+  <!-- Cut line glow dot at bottom -->
+  <circle cx="6" cy="26" r="2.2" fill="#3b5bff"/>
+</svg>
