@@ -717,16 +717,16 @@ const DOWNLOAD_URL = 'https://github.com/JacobDSiler/CurveSlice-Pro/releases/dow
 const dlModal = document.getElementById('download-modal');
 
 function openDownload() {
+  // Trigger download immediately — must happen synchronously inside the
+  // user-gesture handler or browsers will block it as a popup
+  const a = document.createElement('a');
+  a.href = DOWNLOAD_URL;
+  a.download = 'curveslice_pro.V2.0.zip';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  // Show the interstitial modal after kicking off the download
   dlModal.style.display = 'flex';
-  // Trigger the download automatically after a short delay so the modal renders first
-  setTimeout(() => {
-    const a = document.createElement('a');
-    a.href = DOWNLOAD_URL;
-    a.download = 'curveslice_pro.V2.0.zip';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-  }, 400);
 }
 function closeDownload() { dlModal.style.display = 'none'; }
 dlModal?.addEventListener('click', (e) => { if (e.target === dlModal) closeDownload(); });
